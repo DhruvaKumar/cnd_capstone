@@ -5,8 +5,8 @@
   * tl_detector/tl_detector.py
 
 * DBW
-  * twist_controller/dbw_node.py
-  * twist_controller/twist_controller.py
+  * ~~twist_controller/dbw_node.py~~
+  * ~~twist_controller/twist_controller.py~~
 
 * Waypoint Uploader
   * waypoint_updater/waypoint_updater.py
