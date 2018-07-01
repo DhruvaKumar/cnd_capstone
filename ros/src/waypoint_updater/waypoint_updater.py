@@ -45,7 +45,8 @@ class WaypointUpdater(object):
         self.base_waypoints = None
         self.waypoints_2d = None
         self.waypoint_tree = None
-
+        self.tl_state = None
+        self.tl_waypoint = None
 #         rospy.spin()
         self.loop()
 
@@ -80,23 +81,37 @@ class WaypointUpdater(object):
     def publish_waypoints(self, closest_idx):
         lane = Lane()
         lane.header = self.base_waypoints.header
+        # TODO: take traffic light into consideration
+        # use self.tl_state, self.tl_waypoint for traffic light information
+        # modify/replace the line below
         lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
         self.final_waypoints_pub.publish(lane)
 
     def pose_cb(self, msg):
-        # TODO: Implement
+        # TODO: [Done]
         self.pose = msg
 
     def waypoints_cb(self, waypoints):
-        # TODO: Implement
+        # TODO: [Done]
         self.base_waypoints = waypoints
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
 
     def traffic_cb(self, msg):
-        # TODO: Callback for /traffic_waypoint message. Implement
-        pass
+        # TODO: Callback for /traffic_waypoint message. [Done]
+        if msg.state == 0:
+           self.tl_state = "RED"
+           self.tl_waypoint = msg.waypoint
+        elif msg.state == 1:
+           self.tl_state = "YELLOW"
+           self.tl_waypoint = msg.waypoint
+        elif msg.state == 2:
+           self.tl_state = "GREEN"
+           self.tl_waypoint = msg.waypoint
+        elif msg.state == 4:
+           self.tl_state = "NO"
+           self.tl_waypoint = msg.waypoint
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
