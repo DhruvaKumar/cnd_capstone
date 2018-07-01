@@ -81,10 +81,18 @@ class WaypointUpdater(object):
     def publish_waypoints(self, closest_idx):
         lane = Lane()
         lane.header = self.base_waypoints.header
-        # TODO: take traffic light into consideration
-        # use self.tl_state, self.tl_waypoint for traffic light information
-        # modify/replace the line below
-        lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
+        
+        if (self.tl_state == "STOP"):
+            # TODO: handle stop
+            # modify/replace the line below
+            lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
+        elif (self.tl_state == "SLOW"):
+            # TODO: handle yellow light
+            # modify/replace the line below
+            lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
+        elif (self.tl_state == "GO"):
+            lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
+
         self.final_waypoints_pub.publish(lane)
 
     def pose_cb(self, msg):
