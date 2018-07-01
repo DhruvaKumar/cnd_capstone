@@ -3,6 +3,14 @@
 * Traffic light detector:
   * tl_detector/light_classification/tl_classifier.py
   * tl_detector/tl_detector.py
+  * Download images for testing and training from the simulator
+  * Get more test data from another source on the internet.
+  * Play and test using rog bags
+  * Write a classifier to be used
+  * Make changes to the tl_detector to use the classifier
+  * Add logic to look for Yellow and green green light
+  
+  
 
 * DBW
   * ~~twist_controller/dbw_node.py~~
