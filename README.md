@@ -1,16 +1,20 @@
 ## Todo list:
 
 * Traffic light detector:
-  * tl_detector/light_classification/tl_classifier.py
-  * tl_detector/tl_detector.py
-  * Download images for testing and training from the simulator
-  * Get more test data from another source on the internet.
-  * Play and test using rog bags
-  * Write a classifier to be used
-  * Make changes to the tl_detector to use the classifier
-  * Add logic to look for Yellow and green green light
-  
-  
+  * Build traffic light detecting model
+    * data acquisition
+      * Download images for testing and training from the simulator
+      * Get more test data from another source on the internet.
+    * model training
+      * CNN
+      * Window scanning + Histogram
+      * [put the method you want to try here]
+    * tl_detector/light_classification/tl_classifier.py
+  * Model integration (tl_detector)
+    * Input of the model: how to get the image stream
+    * Output of the model: publish the result to the right channel
+
+* Play and test using rog bags
 
 * DBW
   * ~~twist_controller/dbw_node.py~~
@@ -18,6 +22,7 @@
 
 * Waypoint Uploader
   * waypoint_updater/waypoint_updater.py
+    * Add logic to look for Yellow and Green light
 
 For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
 
