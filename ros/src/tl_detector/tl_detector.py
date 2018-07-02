@@ -7,8 +7,10 @@ from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from light_classification.tl_classifier import TLClassifier
+from light_classification.tl_naive_classifier import TLNaiveClassifier
 import tf
 import cv2
+import numpy as np
 import yaml
 from scipy.spatial import KDTree
 
@@ -16,7 +18,7 @@ STATE_COUNT_THRESHOLD = 3
 
 class TLDetector(object):
     def __init__(self):
-        rospy.init_node('tl_detector')
+        rospy.init_node('tl_detector', log_level=rospy.DEBUG)
 
         self.pose = None
         self.waypoints = None
@@ -42,7 +44,8 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
+        # self.light_classifier = TLClassifier()
+        self.light_classifier = TLNaiveClassifier()
         self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
@@ -120,19 +123,24 @@ class TLDetector(object):
 
         Returns:
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
+            UNKNOWN=4
+            GREEN=2
+            YELLOW=1
+            RED=0
 
         """
-#         if(not self.has_image):
-#             self.prev_light_loc = None
-#             return False
-# 
-#         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-# 
-#         #Get classification
-#         return self.light_classifier.get_classification(cv_image)
+        if(not self.has_image):
+            self.prev_light_loc = None
+            return False
+
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        # rospy.logdebug(np.sum(cv_image[:,:,2]>210))
+
+        #Get classification
+        return self.light_classifier.get_classification(cv_image)
 
         # for testing, just return the light state
-        return light.state
+        # return light.state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
