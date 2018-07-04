@@ -9,10 +9,9 @@
       * CNN
       * Window scanning + Histogram
       * [put the method you want to try here]
-    * tl_detector/light_classification/tl_classifier.py
-  * Model integration (tl_detector)
-    * Input of the model: how to get the image stream
-    * Output of the model: publish the result to the right channel
+  * ~~Model integration~~ (see tl_naive_classifier.py)
+    * ~~Input of the model: how to get the image stream~~
+    * ~~Output of the model: publish the result to the right channel~~
 
 * Play and test using rog bags
 
