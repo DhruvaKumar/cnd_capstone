@@ -4,8 +4,11 @@ import rospy
 from std_msgs.msg import Bool
 from dbw_mkz_msgs.msg import ThrottleCmd, SteeringCmd, BrakeCmd, SteeringReport
 from geometry_msgs.msg import TwistStamped
-import math
+from styx_msgs.msg import Lane
+from geometry_msgs.msg import PoseStamped
 
+import math
+import numpy as np
 from twist_controller import Controller
 
 '''
@@ -66,15 +69,19 @@ class DBWNode(object):
                                     max_steer_angle=max_steer_angle)
 
         # TODO: Subscribe to all the topics you need to [done]
-        rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_cb)
-        rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb)
-        rospy.Subscriber('/current_velocity', TwistStamped, self.velocity_cb)
+        rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_cb,queue_size=1)
+        rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb,queue_size=1)
+        rospy.Subscriber('/current_velocity', TwistStamped, self.velocity_cb,queue_size=1)
+        rospy.Subscriber('/final_waypoints', Lane, self.final_waypoints_cb,queue_size=1)
+        rospy.Subscriber('/current_pose', PoseStamped, self.cur_pose_cb,queue_size=1)
 
         self.current_vel = None
         self.curr_ang_vel = None
         self.dbw_enabled = None
         self.linear_vel = None
         self.angular_vel = None
+        self.final_waypoints = None
+        self.cur_pose = None
         self.throttle = self.brake = self.steer = 0
 
         self.loop()
@@ -85,10 +92,12 @@ class DBWNode(object):
             # TODO: Get predicted throttle, brake, and steering using `twist_controller`
             # You should only publish the control commands if dbw is enabled
             if not None in (self.current_vel, self.linear_vel, self.angular_vel):
+                cte = self.get_cte(self.final_waypoints, self.cur_pose)
                 self.throttle, self.brake, self.steer = self.controller.control(self.current_vel,
                                                                     self.dbw_enabled,
                                                                     self.linear_vel,
-                                                                    self.angular_vel)
+                                                                    self.angular_vel,
+                                                                    cte)
 
             if self.dbw_enabled:
               self.publish(self.throttle, self.brake, self.steer)
@@ -103,6 +112,15 @@ class DBWNode(object):
 
     def velocity_cb(self, msg):
         self.current_vel = msg.twist.linear.x
+
+    #add final waypoints and current_pos cb
+    def final_waypoints_cb(self, msg):
+        #self.linear_vel = msg.waypoints[0].twist.twist.linear.x 
+        self.final_waypoints = msg.waypoints
+
+    def cur_pose_cb(self,msg):
+        self.cur_pose=msg
+
 
     def publish(self, throttle, brake, steer):
         tcmd = ThrottleCmd()
@@ -121,6 +139,43 @@ class DBWNode(object):
         bcmd.pedal_cmd_type = BrakeCmd.CMD_TORQUE
         bcmd.pedal_cmd = brake
         self.brake_pub.publish(bcmd)
+
+    def get_cte(self, waypoints, cur_pos):
+        if (waypoints is not None) and (cur_pos is not None):
+            origin = waypoints[0].pose.pose.position
+            #convert to x,y list
+            waypoints_xy_list=list(map(lambda waypoint: [waypoint.pose.pose.position.x,
+                                                                waypoint.pose.pose.position.y],
+                                            waypoints))
+            #vehicle coordinates
+            shift_xy_list = waypoints_xy_list - np.array([origin.x, origin.y])
+
+            #calculte the angle to rotate
+            angle=np.arctan2(shift_xy_list[11,1],shift_xy_list[11,0])
+            rotation_matrix=np.array([
+                        [np.cos(angle), -np.sin(angle)],
+                        [np.sin(angle), np.cos(angle)]])
+            #coordinate transformation (rotation)
+            rotation_xy_list= np.dot(shift_xy_list,rotation_matrix)
+
+            #polynomial fit, default set degree to be 2. 
+            degree = 2
+            poly_coef = np.polyfit(rotation_xy_list[:,0],rotation_xy_list[:,1],degree)
+
+            #calculate vehicle pose in transformed coordinate
+            car_xy_list = np.array([cur_pos.pose.position.x, cur_pos.pose.position.y]) 
+            shift_car_pos = car_xy_list - np.array([origin.x, origin.y])
+            rotation_car_pos = np.dot(shift_car_pos,rotation_matrix)
+                
+            #expected y value
+            y_est = np.polyval(poly_coef, rotation_car_pos[0])
+            y_actual = rotation_car_pos[1]
+
+            cte = y_est - y_actual
+        else:
+            cte=0
+
+        return cte
 
 
 if __name__ == '__main__':
