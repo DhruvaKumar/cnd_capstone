@@ -5,10 +5,16 @@
     * data acquisition
       * Download images for testing and training from the simulator
       * Get more test data from another source on the internet.
-    * model training
-      * CNN
-      * Window scanning + Histogram
-      * [put the method you want to try here]
+    * model training (Create your own classifier, and then change `self.light_classifier = ` in `tl_detector.py`)
+      * For sim
+        * FCNN (Dhuvak)
+        * Window scanning + Histogram 
+        * [put the method you want to try here]
+      * For real
+        * CNN
+        * Window scanning + Histogram
+        * [put the method you want to try here]
+        
   * ~~Model integration~~ (see tl_naive_classifier.py)
     * ~~Input of the model: how to get the image stream~~
     * ~~Output of the model: publish the result to the right channel~~
