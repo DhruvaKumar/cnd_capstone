@@ -3,16 +3,17 @@
 * Traffic light detector:
   * Build traffic light detecting model
     * data acquisition
-      * Download images for testing and training from the simulator
-      * Get more test data from another source on the internet.
+      * ~~Download images for testing and training from the simulator~~
+      * ~~Get more test data from another source on the internet.~~
     * model training (Create your own classifier, and then change `self.light_classifier = ` in `tl_detector.py`)
       * For sim
         * FCNN (Dhuvak)
-        * Window scanning + Histogram 
+        * Window scanning + Histogram (Danny)
         * [put the method you want to try here]
       * For real
-        * CNN
+        * CNN 
         * Window scanning + Histogram
+        * inference? (Duncan)
         * [put the method you want to try here]
         
   * ~~Model integration~~ (see tl_naive_classifier.py)
