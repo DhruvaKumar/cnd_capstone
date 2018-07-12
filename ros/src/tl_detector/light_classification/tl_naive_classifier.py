@@ -12,6 +12,7 @@ class TLNaiveClassifier(object):
         self.channels = 3
         # create your model here, with tf, keras, scikitlearn or whatever you wish
         self.model = None
+        self.red_cnt = 0
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
@@ -30,8 +31,9 @@ class TLNaiveClassifier(object):
         # tl = TrafficLight()
         # tl.state = color
         # return tl.state
-
-        if np.sum(image[:,:,2]>210)>1200:
+        red_mask = (image[:,:,2]>210)&(image[:,:,1]<30)&(image[:,:,0]<30)
+        self.red_cnt = np.sum(red_mask)
+        if self.red_cnt>3:
             return TrafficLight.RED
 
         return TrafficLight.GREEN
