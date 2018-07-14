@@ -1,6 +1,6 @@
 from styx_msgs.msg import TrafficLight
 import numpy as np
-import os.path
+import os
 import sys
 from glob import glob
 import tensorflow as tf
@@ -8,6 +8,8 @@ from time import time
 
 import cv2
 # from matplotlib import pyplot as plt
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 
 NUM_CLASSES = 4
 MODEL_PATH = os.path.join('light_classification', 'models', 'frozen_inference_graph_ssdcoco.pb')
