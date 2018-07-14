@@ -37,7 +37,7 @@ class TLDetector(object):
         rely on the position of the light and the camera image to predict it.
         '''
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
+        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1, buff_size=800*600*3*8*2)
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
@@ -97,8 +97,10 @@ class TLDetector(object):
             light_wp = light_wp if state == TrafficLight.RED else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
+            print('image_cb: red_wp={}'.format(light_wp))
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
+            print('image_cb: last_wp={}'.format(self.last_wp))
         self.state_count += 1
 
 #     def get_closest_waypoint(self, pose):
@@ -141,7 +143,7 @@ class TLDetector(object):
         return self.light_classifier.get_classification(cv_image)
 
         # for testing, just return the light state
-        # return light.state
+#         return light.state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
