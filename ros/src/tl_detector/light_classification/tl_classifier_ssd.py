@@ -6,6 +6,7 @@ from glob import glob
 import tensorflow as tf
 from time import time
 
+import cv2
 # from matplotlib import pyplot as plt
 
 NUM_CLASSES = 4
@@ -18,6 +19,8 @@ class TLClassifier(object):
         # load frozen graph
         self.graph = self.load_graph()
         print('TLClassifier: loaded model')
+        
+        self.count_save = 0
 
     def load_graph(self):
         '''
@@ -80,13 +83,18 @@ class TLClassifier(object):
 
                 # return class of max score
                 max_score_id = np.argmax(output_dict['detection_scores'])
-                if (output_dict['detection_classes'][max_score_id] == 0):
+                if (output_dict['detection_classes'][max_score_id] == 1):
                     state = TrafficLight.RED
-                elif (output_dict['detection_classes'][max_score_id] == 1):
-                    state = TrafficLight.YELLOW
                 elif (output_dict['detection_classes'][max_score_id] == 2):
+                    state = TrafficLight.YELLOW
+                elif (output_dict['detection_classes'][max_score_id] == 3):
                     state = TrafficLight.GREEN
 
             print('tl_classifier: detection took {:.3f}s state:{}'.format(time() - start, state))
+            
+#             if (self.count_save < 2):
+#                 cv2.imwrite('{}_{}.png'.format(self.count_save, state), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+#                 print(output_dict)
+#                 self.count_save += 1
 
         return state
