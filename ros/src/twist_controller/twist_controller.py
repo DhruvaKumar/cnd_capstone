@@ -48,7 +48,7 @@ class Controller(object):
     def control(self, current_vel, dbw_enabled, linear_vel, angular_vel, cte):
         # TODO: Change the arg, kwarg list to suit your needs
         # Return throttle, brake, steer
-        if (not dbw_enabled) or (abs(current_vel<1e-5)) or (abs(linear_vel)<1e-5):
+        if not dbw_enabled:
             self.throttle_controller.reset()
             self.steering_controller.reset()
             return 0.0, 0.0, 0.0
