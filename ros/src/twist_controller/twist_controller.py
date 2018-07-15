@@ -24,9 +24,12 @@ class Controller(object):
         
         min_throttle = 0.0
         max_throttle = 0.7
+        #self.throttle_controller = PID(kp=Kp_v, ki=Ki_v, kd=Kd_v,
+        #                                mn=min_throttle,
+        #                                mx=max_throttle)
         self.throttle_controller = PID(kp=Kp_v, ki=Ki_v, kd=Kd_v,
-                                        mn=min_throttle,
-                                        mx=max_throttle)
+                                        mn=decel_limit, 
+                                        mx=accel_limit)
         self.steering_controller = PID(kp=Kp_s, ki=Ki_s, kd=Kd_s,
                                         mn=-1.0*max_steer_angle,
                                         mx=1.0*max_steer_angle) 
@@ -45,7 +48,7 @@ class Controller(object):
     def control(self, current_vel, dbw_enabled, linear_vel, angular_vel, cte):
         # TODO: Change the arg, kwarg list to suit your needs
         # Return throttle, brake, steer
-        if not dbw_enabled:
+        if (not dbw_enabled) or (abs(current_vel<1e-5)) or (abs(linear_vel)<1e-5):
             self.throttle_controller.reset()
             self.steering_controller.reset()
             return 0.0, 0.0, 0.0
@@ -69,7 +72,7 @@ class Controller(object):
         elif throttle<0.1 and vel_error <0:
             throttle = 0
             decel = max(vel_error, self.decel_limit)
-            brake = abs(decel)*self.vehicle_mass*self.wheel_radius
+            brake = abs(decel)*self.vehicle_mass*self.wheel_radius if abs(decel) > self.brake_deadband else 0.
 
         #steering
         predict_steering = self.yaw_controller.get_steering(linear_vel, angular_vel, current_vel)
