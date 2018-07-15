@@ -1,4 +1,5 @@
 from styx_msgs.msg import TrafficLight
+import rospy
 import numpy as np
 import os
 import sys
@@ -13,6 +14,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 NUM_CLASSES = 4
 MODEL_PATH = os.path.join('light_classification', 'models', 'frozen_inference_graph_ssdcoco.pb')
+SCORE_THRESHOLD = 0.6
 
 
 class TLClassifier(object):
@@ -20,7 +22,7 @@ class TLClassifier(object):
         
         # load frozen graph
         self.graph = self.load_graph()
-        print('TLClassifier: loaded model')
+        rospy.logdebug('TLClassifier: loaded model')
         
         self.count_save = 0
 
@@ -53,46 +55,40 @@ class TLClassifier(object):
         state = TrafficLight.UNKNOWN
 
         with tf.Session(graph=self.graph) as sess:
-
-            ops = tf.get_default_graph().get_operations()
-            all_tensor_names = {output.name for op in ops for output in op.outputs}
-            tensor_dict = {}
-            for key in [
-              'num_detections', 'detection_boxes', 'detection_scores',
-              'detection_classes'
-              ]:
-              tensor_name = key + ':0'
-              if tensor_name in all_tensor_names:
-                tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
             
-    #       print(tensor_dict)
-
+            # get tensors
+            num_detections_tnsr = tf.get_default_graph().get_tensor_by_name('num_detections:0')
+            classes_tnsr = tf.get_default_graph().get_tensor_by_name('detection_classes:0')
+#             boxes_tnsr = tf.get_default_graph().get_tensor_by_name('detection_boxes:0')
+            scores_tnsr = tf.get_default_graph().get_tensor_by_name('detection_scores:0')
+        
             image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
-
-            # Run inference
-            output_dict = sess.run(tensor_dict,
-                                 feed_dict={image_tensor: image[None,:]})
-
-            # all outputs are float32 numpy arrays, so convert types as appropriate
-            output_dict['num_detections'] = int(output_dict['num_detections'][0])
-            output_dict['detection_classes'] = output_dict[
-              'detection_classes'][0].astype(np.uint8)
-            output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
-            output_dict['detection_scores'] = output_dict['detection_scores'][0]
-
+        
+            # run inference
+            [num_detections, classes, scores] = sess.run([
+                num_detections_tnsr, classes_tnsr, scores_tnsr],
+                feed_dict={image_tensor: image[None,:]})
             
-            if (output_dict['num_detections'] > 0):
+            num_detections =  int(num_detections)
+            classes = classes[0].astype(np.uint8)
+#             boxes = boxes[0]
+            scores = scores[0]
+
+            # max score
+            max_score_id = np.argmax(scores)
+            max_score = scores[max_score_id]
+            
+            if (num_detections > 0 and max_score > SCORE_THRESHOLD):
 
                 # return class of max score
-                max_score_id = np.argmax(output_dict['detection_scores'])
-                if (output_dict['detection_classes'][max_score_id] == 1):
+                if (classes[max_score_id] == 1):
                     state = TrafficLight.RED
-                elif (output_dict['detection_classes'][max_score_id] == 2):
+                elif (classes[max_score_id] == 2):
                     state = TrafficLight.YELLOW
-                elif (output_dict['detection_classes'][max_score_id] == 3):
+                elif (classes[max_score_id] == 3):
                     state = TrafficLight.GREEN
 
-            print('tl_classifier: detection took {:.3f}s state:{}'.format(time() - start, state))
+            rospy.logdebug('tl_classifier: detection took {:.3f}s state:{}'.format(time() - start, state))
             
 #             if (self.count_save < 2):
 #                 cv2.imwrite('{}_{}.png'.format(self.count_save, state), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
