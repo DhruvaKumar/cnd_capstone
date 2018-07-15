@@ -33,7 +33,7 @@ class TLNaiveClassifier(object):
         # return tl.state
         red_mask = (image[:,:,2]>210)&(image[:,:,1]<30)&(image[:,:,0]<30)
         self.red_cnt = np.sum(red_mask)
-        if self.red_cnt>3:
+        if self.red_cnt>1:
             return TrafficLight.RED
 
         return TrafficLight.GREEN

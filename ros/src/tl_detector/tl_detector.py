@@ -137,7 +137,7 @@ class TLDetector(object):
         # rospy.logdebug(np.sum(cv_image[:,:,2]>210))
 
         state = self.light_classifier.get_classification(cv_image)
-        rospy.logdebug(self.light_classifier.red_cnt)
+        rospy.logdebug(str(state)+'_'+str(light.state))
         #Get classification
         return state
 
