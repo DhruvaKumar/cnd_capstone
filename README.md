@@ -7,11 +7,11 @@
       * ~~Get more test data from another source on the internet.~~
     * model training (Create your own classifier, and then change `self.light_classifier = ` in `tl_detector.py`)
       * For sim
-        * FCNN (Dhuvak)
+        * CNN (Dhruva)
         * Window scanning + Histogram (Danny)
         * [put the method you want to try here]
       * For real
-        * CNN 
+        * CNN (faster rcnn/ssd) (dhruva)
         * Window scanning + Histogram
         * inference? (Duncan)
         * [put the method you want to try here]
