@@ -31,7 +31,7 @@ class TLClassifier(object):
         # self.boxes_tnsr = graph.get_tensor_by_name('detection_boxes:0')
         self.scores_tnsr = graph.get_tensor_by_name('detection_scores:0')
 
-        rospy.loginfo('tl_classifier: loaded model and sess')
+        rospy.loginfo('tl_classifier: loaded model and tf session')
         
 
     def load_graph(self):
@@ -86,7 +86,7 @@ class TLClassifier(object):
             elif (class_max_score == 3):
                 state = TrafficLight.GREEN
 
-        rospy.logdebug('tl_classifier: detection took {:.3f}s state:{} tstate:{}'.format(time() - start, state, true_state))
+        rospy.logdebug('tl_classifier: detection took {:.2f}ms state:{} tstate:{}'.format((time() - start)*1000, state, true_state))
         
         
         # debug misclassification
