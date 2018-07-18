@@ -5,14 +5,31 @@ import os
 import tensorflow as tf
 from time import time
 
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 import cv2
 # from matplotlib import pyplot as plt
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 
 NUM_CLASSES = 4
-MODEL_PATH = os.path.join('light_classification', 'models', 'frozen_inference_graph_ssdcoco.pb')
+MODEL_PATH = os.path.join('light_classification', 'models', 'frozen_inference_graph_fasterrcnn_real.pb')
 SCORE_THRESHOLD = 0.6
+
+SAVE_OUTPUT_IMAGES = True
+
+LABEL_MAP= {
+    1: 'Red',
+    2: 'Yellow',
+    3: 'Green',
+    4: 'Unknown'
+}
+COLOR_CODE_MAP = {
+    1: (255,0,0),
+    2: (255,255,0),
+    3: (0,255,0),
+    4: (255,255,255)
+}
 
 
 class TLClassifier(object):
@@ -32,6 +49,10 @@ class TLClassifier(object):
         self.scores_tnsr = graph.get_tensor_by_name('detection_scores:0')
 
         rospy.loginfo('tl_classifier: loaded model and tf session')
+        
+        if SAVE_OUTPUT_IMAGES:
+            self.bridge = CvBridge()
+            self.img_op_pub = rospy.Publisher('/image_op', Image, queue_size=1)
         
 
     def load_graph(self):
@@ -89,9 +110,31 @@ class TLClassifier(object):
         rospy.logdebug('tl_classifier: detection took {:.2f}ms state:{} tstate:{}'.format((time() - start)*1000, state, true_state))
         
         
-        # debug misclassification
-        if state != true_state:
-            cv2.imwrite('misclassifications/{}_{}_{}_{:.2f}.png'.format(state, true_state, class_max_score, max_score), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-            rospy.logdebug('tl_classifier: saving misclassified image...')
-
+#         # debug misclassification
+#         if state != true_state:
+#             cv2.imwrite('misclassifications/{}_{}_{}_{:.2f}.png'.format(state, true_state, class_max_score, max_score), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+#             rospy.logdebug('tl_classifier: saving misclassified image...')
+            
+        # debug op images
+        if SAVE_OUTPUT_IMAGES:
+            # overlay traffic state on image and publish to /image_op
+            text = "None"
+            font_color = (255,255,255)
+            if state != TrafficLight.UNKNOWN:
+                text = "{}: {:.2f}%".format(LABEL_MAP[class_max_score], 100*max_score)
+                font_color = COLOR_CODE_MAP[class_max_score]
+            font_scale = 2
+            line_type = 2
+            rows, cols, _ = image.shape
+            cv2.putText(image,
+                        text, 
+                        (50,rows-100), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 
+                        font_scale,
+                        font_color,
+                        line_type)
+            # publish
+            msg_image_op = self.bridge.cv2_to_imgmsg(image, "rgb8")
+            self.img_op_pub.publish(msg_image_op)
+        
         return state
