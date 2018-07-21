@@ -13,10 +13,9 @@ import cv2
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 
 NUM_CLASSES = 4
-MODEL_PATH = os.path.join('light_classification', 'models', 'frozen_inference_graph_fasterrcnn_real.pb')
 SCORE_THRESHOLD = 0.6
 
-SAVE_OUTPUT_IMAGES = True
+SAVE_OUTPUT_IMAGES = False
 
 LABEL_MAP= {
     1: 'Red',
@@ -34,6 +33,10 @@ COLOR_CODE_MAP = {
 
 class TLClassifier(object):
     def __init__(self):
+        
+        # get model path
+        self.model_path = rospy.get_param("/model_path")
+        rospy.loginfo('tl_classifier: model_path:{}'.format(self.model_path))
         
         # load frozen graph
         graph = self.load_graph()
@@ -62,7 +65,7 @@ class TLClassifier(object):
         graph = tf.Graph()
         with graph.as_default():
           od_graph_def = tf.GraphDef()
-          with tf.gfile.GFile(MODEL_PATH, 'rb') as fid:
+          with tf.gfile.GFile(self.model_path, 'rb') as fid:
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
