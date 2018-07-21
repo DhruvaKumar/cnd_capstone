@@ -38,6 +38,8 @@ class TLDetector(object):
         '''
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
         sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1, buff_size=800*600*3*8*2)
+        # for site images
+#         sub6 = rospy.Subscriber('/image_raw', Image, self.image_cb)
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
@@ -79,6 +81,11 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
+#         # testing rosbag
+#         cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
+#         self.light_classifier.get_classification(cv_image, -1)
+#         return
+    
         self.has_image = True
         self.camera_image = msg
         light_wp, state = self.process_traffic_lights()
