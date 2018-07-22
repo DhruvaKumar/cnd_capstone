@@ -8,9 +8,9 @@ GAS_DENSITY = 2.858
 ONE_MPH = 0.44704
 
 # parameter tunning- throttle PID
-Kp_v = 0.2#0.3
-Ki_v = 0.05#0.1
-Kd_v = 0.05#0.0
+Kp_v = 0.5#0.3
+Ki_v = 0.005#0.1
+Kd_v = 0.1#0.0
 # parameter tunning- steering PID
 Kp_s = 0.15#0.15
 Ki_s = 0.001
@@ -66,7 +66,7 @@ class Controller(object):
         brake = 0 
         if linear_vel==0. and current_vel<0.1:
             throttle = 0
-            brake = 700
+            brake = (self.vehicle_mass + self.fuel_capacity * GAS_DENSITY) * self.wheel_radius * abs(self.decel_limit)
         elif throttle<0.1 and vel_error <0:
             throttle = 0
             decel = max(vel_error, self.decel_limit)
