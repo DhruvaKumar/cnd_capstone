@@ -108,7 +108,7 @@ class DBWNode(object):
 
     def twist_cb(self, msg):
         self.linear_vel = 0.95*msg.twist.linear.x ## avoid exceed speed limit
-        self.angular_vel = msg.twist.angular.z
+        self.angular_vel = 0.80*msg.twist.angular.z
 
     def velocity_cb(self, msg):
         self.current_vel = msg.twist.linear.x
