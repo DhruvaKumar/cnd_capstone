@@ -15,7 +15,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 NUM_CLASSES = 4
 SCORE_THRESHOLD = 0.6
 
-SAVE_OUTPUT_IMAGES = False
+PUBLISH_OUTPUT_IMAGES = True
 
 LABEL_MAP= {
     1: 'Red',
@@ -53,7 +53,7 @@ class TLClassifier(object):
 
         rospy.loginfo('tl_classifier: loaded model and tf session')
         
-        if SAVE_OUTPUT_IMAGES:
+        if PUBLISH_OUTPUT_IMAGES:
             self.bridge = CvBridge()
             self.img_op_pub = rospy.Publisher('/image_op', Image, queue_size=1)
         
@@ -119,7 +119,7 @@ class TLClassifier(object):
 #             rospy.logdebug('tl_classifier: saving misclassified image...')
             
         # debug op images
-        if SAVE_OUTPUT_IMAGES:
+        if PUBLISH_OUTPUT_IMAGES:
             # overlay traffic state on image and publish to /image_op
             text = "None"
             font_color = (255,255,255)
