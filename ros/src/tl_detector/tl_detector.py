@@ -7,7 +7,7 @@ from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 # from light_classification.tl_classifier import TLClassifier
-# from light_classification.tl_naive_classifier import TLNaiveClassifier
+from light_classification.tl_naive_classifier import TLNaiveClassifier
 from light_classification.tl_classifier_ssd import TLClassifier
 import tf
 import cv2
@@ -56,7 +56,7 @@ class TLDetector(object):
         
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
-#         self.light_classifier = TLNaiveClassifier()
+        # self.light_classifier = TLNaiveClassifier()
         self.listener = tf.TransformListener()
 
         rospy.spin()
@@ -104,10 +104,10 @@ class TLDetector(object):
             light_wp = light_wp if state == TrafficLight.RED else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
-            print('image_cb: red_wp={}'.format(light_wp))
+            # print('image_cb: red_wp={}'.format(light_wp))
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-            print('image_cb: last_wp={}'.format(self.last_wp))
+            # print('image_cb: last_wp={}'.format(self.last_wp))
         self.state_count += 1
 
 #     def get_closest_waypoint(self, pose):
@@ -144,15 +144,15 @@ class TLDetector(object):
             return False
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
-        # rospy.logdebug(np.sum(cv_image[:,:,2]>210))
+        # cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8") # for pixel based detector
 
-        #state = self.light_classifier.get_classification(cv_image)
-        # rospy.logdebug(str(self.light_classifier.red_cnt)+','+str(state)+'_'+str(light.state))
+        state = self.light_classifier.get_classification(cv_image)
+        rospy.logdebug(str(state)+'_'+str(light.state))
         #Get classification
-        return self.light_classifier.get_classification(cv_image, light.state)
+        # return state
 
         # for testing, just return the light state
-#         return light.state
+        return light.state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its

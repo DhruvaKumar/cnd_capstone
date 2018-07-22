@@ -72,7 +72,7 @@ class TLClassifier(object):
 
         return graph
 
-    def get_classification(self, image, true_state):
+    def get_classification(self, image):
         """Determines the color of the traffic light in the image
 
         Args:
@@ -109,15 +109,7 @@ class TLClassifier(object):
                 state = TrafficLight.YELLOW
             elif (class_max_score == 3):
                 state = TrafficLight.GREEN
-
-        rospy.logdebug('tl_classifier: detection took {:.2f}ms state:{} tstate:{}'.format((time() - start)*1000, state, true_state))
-        
-        
-#         # debug misclassification
-#         if state != true_state:
-#             cv2.imwrite('misclassifications/{}_{}_{}_{:.2f}.png'.format(state, true_state, class_max_score, max_score), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-#             rospy.logdebug('tl_classifier: saving misclassified image...')
-            
+  
         # debug op images
         if PUBLISH_OUTPUT_IMAGES:
             # overlay traffic state on image and publish to /image_op
