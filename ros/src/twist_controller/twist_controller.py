@@ -12,8 +12,8 @@ Kp_v = 0.5#0.3
 Ki_v = 0.005#0.1
 Kd_v = 0.1#0.0
 # parameter tunning- steering PID
-Kp_s = 0.15#0.15
-Ki_s = 0.001
+Kp_s = 0.5#0.15
+Ki_s = 0.0
 Kd_s = 0.1#0.1
 
 class Controller(object):
