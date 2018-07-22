@@ -55,8 +55,8 @@ class TLDetector(object):
         self.waypoint_tree = None
         
         self.bridge = CvBridge()
-        #self.light_classifier = TLClassifier()
-        self.light_classifier = TLNaiveClassifier()
+        self.light_classifier = TLClassifier()
+        # self.light_classifier = TLNaiveClassifier()
         self.listener = tf.TransformListener()
 
         rospy.spin()

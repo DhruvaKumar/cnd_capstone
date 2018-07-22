@@ -51,18 +51,15 @@ class Controller(object):
             self.steering_controller.reset()
             return 0.0, 0.0, 0.0
 
-        current_vel = self.vel_lpf.filt(current_vel)
-
         #throttle
         vel_error = linear_vel - current_vel
         self.last_vel = current_vel
         current_time = rospy.get_time()
-        sample_time = current_time - self.last_time
+        duration = current_time - self.last_time
+        sample_time = duration + 1e-6 # to avoid division by zero
         self.last_time = current_time
-        # rospy.logdebug(str(sample_time))
         throttle = self.throttle_controller.step(vel_error, sample_time)
-        
-        #brake
+        throttle = self.vel_lpf.filt(throttle)
         brake = 0 
         if linear_vel==0. and current_vel<0.1:
             throttle = 0

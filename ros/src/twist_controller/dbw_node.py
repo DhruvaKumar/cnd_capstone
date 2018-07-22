@@ -107,15 +107,15 @@ class DBWNode(object):
         self.dbw_enabled = msg
 
     def twist_cb(self, msg):
-        self.linear_vel = 0.95*msg.twist.linear.x ## avoid exceed speed limit
+        self.linear_vel = 0.95*msg.twist.linear.x # to avoid exceed speed limit
         self.angular_vel = 0.80*msg.twist.angular.z
 
     def velocity_cb(self, msg):
         self.current_vel = msg.twist.linear.x
 
-    #add final waypoints and current_pos cb
+    # add final waypoints and current_pos cb
     def final_waypoints_cb(self, msg):
-        #self.linear_vel = msg.waypoints[0].twist.twist.linear.x 
+        # self.linear_vel = msg.waypoints[0].twist.twist.linear.x 
         self.final_waypoints = msg.waypoints
 
     def cur_pose_cb(self,msg):
