@@ -14,6 +14,7 @@ import cv2
 import numpy as np
 import yaml
 from scipy.spatial import KDTree
+import math
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -37,10 +38,11 @@ class TLDetector(object):
         rely on the position of the light and the camera image to predict it.
         '''
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1, buff_size=800*600*3*8*2)
-        # for site images
-#         sub6 = rospy.Subscriber('/image_raw', Image, self.image_cb)
-
+        
+        image_topic = rospy.get_param("/image_topic")
+        sub6 = rospy.Subscriber(image_topic, Image, self.image_cb)
+        #sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1, buff_size=800*600*3*8*2)
+        
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
 
@@ -187,6 +189,8 @@ class TLDetector(object):
                     line_wp_idx = temp_wp_idx
 
         if closest_light:
+#             rospy.logdebug("d:{}".format(math.sqrt((closest_light.pose.pose.position.y - self.pose.pose.position.y)**2 + (closest_light.pose.pose.position.x - self.pose.pose.position.x)**2)))
+
             state = self.get_light_state(closest_light)
             return line_wp_idx, state
         
