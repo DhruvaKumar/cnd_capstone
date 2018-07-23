@@ -92,12 +92,17 @@ class DBWNode(object):
             # TODO: Get predicted throttle, brake, and steering using `twist_controller`
             # You should only publish the control commands if dbw is enabled
             if not None in (self.current_vel, self.linear_vel, self.angular_vel):
-                cte = self.get_cte(self.final_waypoints, self.cur_pose)
-                self.throttle, self.brake, self.steer = self.controller.control(self.current_vel,
-                                                                    self.dbw_enabled,
-                                                                    self.linear_vel,
-                                                                    self.angular_vel,
-                                                                    cte)
+                if self.final_waypoints and len(self.final_waypoints)>3:
+                    cte = self.get_cte(self.final_waypoints, self.cur_pose)
+                    self.throttle, self.brake, self.steer = self.controller.control(self.current_vel,
+                                                                        self.dbw_enabled,
+                                                                        self.linear_vel,
+                                                                        self.angular_vel,
+                                                                        cte)
+                else:
+                    self.throttle = 0
+                    self.brake = 700
+                    self.steer = 0
 
             if self.dbw_enabled:
               self.publish(self.throttle, self.brake, self.steer)
@@ -145,13 +150,14 @@ class DBWNode(object):
             origin = waypoints[0].pose.pose.position
             #convert to x,y list
             waypoints_xy_list=list(map(lambda waypoint: [waypoint.pose.pose.position.x,
-                                                                waypoint.pose.pose.position.y],
+                                                        waypoint.pose.pose.position.y],
                                             waypoints))
+            n = len(waypoints)
             #vehicle coordinates
             shift_xy_list = waypoints_xy_list - np.array([origin.x, origin.y])
 
             #calculte the angle to rotate
-            angle=np.arctan2(shift_xy_list[11,1],shift_xy_list[11,0])
+            angle=np.arctan2(shift_xy_list[min(11,n-1),1],shift_xy_list[min(11,n-1),0])
             rotation_matrix=np.array([
                         [np.cos(angle), -np.sin(angle)],
                         [np.sin(angle), np.cos(angle)]])

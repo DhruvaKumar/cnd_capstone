@@ -1,6 +1,7 @@
 from styx_msgs.msg import TrafficLight
 import cv2
 import numpy as np
+import rospy
 
 class TLNaiveClassifier(object):
     def __init__(self):
@@ -31,9 +32,14 @@ class TLNaiveClassifier(object):
         # tl = TrafficLight()
         # tl.state = color
         # return tl.state
-        red_mask = (image[:,:,2]>210)&(image[:,:,1]<30)&(image[:,:,0]<30)
+        red_mask = (image[:,:,0]>210)&(image[:,:,1]<30)&(image[:,:,2]<30)
         self.red_cnt = np.sum(red_mask)
         if self.red_cnt>1:
             return TrafficLight.RED
+
+        yellow_mask = (image[:,:,0]>210)&(image[:,:,1]>210)&(image[:,:,2]<30)
+        self.yellow_cnt = np.sum(yellow_mask)
+        if self.yellow_cnt>1:
+            return TrafficLight.YELLOW
 
         return TrafficLight.GREEN

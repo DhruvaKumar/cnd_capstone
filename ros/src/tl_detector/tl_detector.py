@@ -57,8 +57,11 @@ class TLDetector(object):
         self.waypoint_tree = None
         
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
-        # self.light_classifier = TLNaiveClassifier()
+        self.light_classifier = TLClassifier() # deeplearning method, requires more computation power.
+        # if 'frozen_inference_graph_ssdcoco' in rospy.get_param("/model_path"):
+        #     # pixel color method which can run in high speed
+        #     self.light_classifier = TLNaiveClassifier() 
+ 
         self.listener = tf.TransformListener()
 
         rospy.spin()
@@ -146,15 +149,14 @@ class TLDetector(object):
             return False
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
-        # cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8") # for pixel based detector
 
         state = self.light_classifier.get_classification(cv_image)
         rospy.logdebug(str(state)+'_'+str(light.state))
         #Get classification
-        # return state
+        return state
 
         # for testing, just return the light state
-        return light.state
+        # return light.state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -189,12 +191,11 @@ class TLDetector(object):
                     line_wp_idx = temp_wp_idx
 
         if closest_light:
-#             rospy.logdebug("d:{}".format(math.sqrt((closest_light.pose.pose.position.y - self.pose.pose.position.y)**2 + (closest_light.pose.pose.position.x - self.pose.pose.position.x)**2)))
+            # rospy.logdebug("d:{}".format(math.sqrt((closest_light.pose.pose.position.y - self.pose.pose.position.y)**2 + (closest_light.pose.pose.position.x - self.pose.pose.position.x)**2)))
 
             state = self.get_light_state(closest_light)
             return line_wp_idx, state
         
-#         self.waypoints = None
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':

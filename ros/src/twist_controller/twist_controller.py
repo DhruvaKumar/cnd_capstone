@@ -34,7 +34,7 @@ class Controller(object):
 
         self.vel_lpf = LowPassFilter(tau=0.6, ts=0.02)
 
-        self.vehicle_mass = vehicle_mass + fuel_capacity * kGasDensity
+        self.vehicle_mass = vehicle_mass + fuel_capacity * GAS_DENSITY
         self.fuel_capacity = fuel_capacity
         self.brake_deadband = brake_deadband
         self.decel_limit = decel_limit
@@ -63,7 +63,7 @@ class Controller(object):
         brake = 0 
         if linear_vel==0. and current_vel<0.1:
             throttle = 0
-            brake = (self.vehicle_mass + self.fuel_capacity * GAS_DENSITY) * self.wheel_radius * abs(self.decel_limit)
+            brake = self.vehicle_mass * self.wheel_radius * abs(self.decel_limit)
         elif throttle<0.1 and vel_error <0:
             throttle = 0
             decel = max(vel_error, self.decel_limit)
