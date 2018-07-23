@@ -151,7 +151,7 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
         state = self.light_classifier.get_classification(cv_image)
-        rospy.logdebug(str(state)+'_'+str(light.state))
+        # rospy.logdebug(str(state)+'_'+str(light.state))
         #Get classification
         return state
 
