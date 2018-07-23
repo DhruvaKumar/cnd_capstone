@@ -1,40 +1,16 @@
-## Todo list:
+## Team members:
 
-* Traffic light detector:
-  * Build traffic light detecting model
-    * data acquisition
-      * ~~Download images for testing and training from the simulator~~
-      * ~~Get more test data from another source on the internet.~~
-    * model training (Create your own classifier, and then change `self.light_classifier = ` in `tl_detector.py`)
-      * For sim
-        * CNN (Dhruva)
-        * Window scanning + Histogram (Danny)
-        * [put the method you want to try here]
-      * For real
-        * CNN (faster rcnn/ssd) (dhruva)
-        * Window scanning + Histogram
-        * inference? (Duncan)
-        * [put the method you want to try here]
-        
-  * ~~Model integration~~ (see tl_naive_classifier.py)
-    * ~~Input of the model: how to get the image stream~~
-    * ~~Output of the model: publish the result to the right channel~~
+* Dongning Wang: dongning.wang@gmail.com
+* Duncan Ondala: ondala1@yahoo.com
+* Ning Li: liningblack@hotmail.com
+* Dhruva Kumar: dhruva.kumar08@gmail.com
+* Shyam Rai: sraisrai@yahoo.com
 
-* Play and test using rog bags
+## Testing Instruction:
 
-* DBW
-  * ~~twist_controller/dbw_node.py~~
-  * twist_controller/twist_controller.py
-    * Improve PID, increase topspeed to 40-50 MPH
-
-* Waypoint Uploader
-  * waypoint_updater/waypoint_updater.py
-    * Add logic to look for Yellow and Green light
-    * Smoothing out: when classifier is unstable, and produce noise false result among many correctly predicted frames
-
-For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
-
-Please use **one** of the two installation options, either native **or** docker installation.
+* Run `roslaunch launch/styx.launch` for highway simulation
+* Run `roslaunch launch/styx_church.launch` for test lot simulation
+* Run `roslaunch launch/site.launch` for Carla
 
 ### Native Installation
 
